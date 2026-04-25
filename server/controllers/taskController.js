@@ -140,3 +140,59 @@ export const deleteSubTask = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+
+export const addTagToTask = async (req, res) => {
+  try {
+    const { id } = req.params;      
+    const { tag_id } = req.body;
+
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { $addToSet: { tags: tag_id } }, 
+      { new: true }
+    ).populate('tags');
+
+    if (!task) return res.json({ success: false, message: 'Task not found' });
+    res.json({ success: true, data: task });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const removeTagFromTask = async (req, res) => {
+  try {
+    const { id, tag_id } = req.params;
+
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { $pull: { tags: tag_id } },
+      { new: true }
+    ).populate('tags');
+
+    if (!task) return res.json({ success: false, message: 'Task not found' });
+    res.json({ success: true, data: task });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+export const getTasksByDateRange = async (req, res) => {
+  try {
+    const { start, end } = req.query;
+
+    const projects = await Project.find({ user_id: req.userId });
+    const projectIds = projects.map(p => p._id);
+
+    const tasks = await Task.find({
+      project_id: { $in: projectIds },
+      $or: [
+        { start_date: { $gte: new Date(start), $lte: new Date(end) } },
+        { due_date:   { $gte: new Date(start), $lte: new Date(end) } },
+      ]
+    }).populate('tags');
+
+    res.json({ success: true, count: tasks.length, data: tasks });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
