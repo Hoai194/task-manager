@@ -8,6 +8,9 @@ import {
   createSubTask,
   toggleSubTask,
   deleteSubTask,
+  addTagToTask,
+  removeTagFromTask,
+  getTasksByDateRange
 } from '../controllers/taskController.js';
 import auth from '../middleware/auth.js';
 
@@ -25,4 +28,8 @@ taskRouter.patch('/:id/toggle', toggleTask);
 taskRouter.post('/:id/subtasks', createSubTask);        
 taskRouter.patch('/:id/subtasks/:subId/toggle', toggleSubTask); 
 taskRouter.delete('/:id/subtasks/:subId', deleteSubTask);  
+
+taskRouter.get('/calendar', getTasksByDateRange)
+taskRouter.post('/:id/tags', addTagToTask);        
+taskRouter.delete('/:id/tags/:tag_id', removeTagFromTask); 
 export default taskRouter;
